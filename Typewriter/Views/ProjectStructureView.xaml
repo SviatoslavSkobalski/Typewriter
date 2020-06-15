@@ -1,0 +1,109 @@
+﻿<UserControl
+    x:Class="Typewriter.Views.ProjectStructureView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="clr-namespace:Typewriter.Controls"
+    xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+    xmlns:prism="http://prismlibrary.com/"
+    xmlns:vm="clr-namespace:Typewriter.ViewModels"
+    prism:ViewModelLocator.AutoWireViewModel="True">
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <ListView
+            Grid.Column="0"
+            BorderThickness="0"
+            ItemsSource="{Binding Categories}"
+            SelectedItem="{Binding SelectedCategory}">
+
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="SelectionChanged">
+                    <i:InvokeCommandAction Command="{Binding GetCategoryItemsCommand}" CommandParameter="{Binding SelectedCategory}" />
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+
+            <ListView.ItemTemplate>
+                <DataTemplate DataType="{x:Type vm:ProjectCategoryViewModel}">
+                    <controls:ProjectCategoryControl CategoryName="{Binding Name}" />
+                </DataTemplate>
+            </ListView.ItemTemplate>
+
+        </ListView>
+
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <ToolBar Grid.Row="0">
+                <Button
+                    Command="{Binding AddNewManuscriptItemCommand}"
+                    CommandParameter="{Binding SelectedCategory}"
+                    Content="Add Item" />
+                <Button
+                    Command="{Binding AddExistingManuscriptItemCommand}"
+                    CommandParameter="{Binding SelectedCategory}"
+                    Content="Add Existing Item" />
+            </ToolBar>
+
+            <TreeView
+                Grid.Row="1"
+                Background="AliceBlue"
+                BorderThickness="0"
+                ItemsSource="{Binding Items}">
+                <TreeView.ItemTemplate>
+
+                    <DataTemplate DataType="{x:Type vm:ProjectItemViewModel}">
+                        <controls:ProjectItemControl
+                            Margin="0,5"
+                            IsFirstCreated="{Binding IsFirstCreated}"
+                            Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+
+                            <controls:ProjectItemControl.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem
+                                        Command="{x:Static controls:ProjectItemControl.EditCommand}"
+                                        CommandParameter="Enter"
+                                        Header="Rename" />
+                                    <MenuItem
+                                        Command="{Binding RemoveManuscriptItemCommand}"
+                                        CommandParameter="{Binding}"
+                                        Header="Remove" />
+                                    <MenuItem
+                                        Command="{Binding AddItemReferenceCommand}"
+                                        CommandParameter="{Binding}"
+                                        Header="Add Reference" />
+                                </ContextMenu>
+                            </controls:ProjectItemControl.ContextMenu>
+
+                            <controls:ProjectItemControl.InputBindings>
+                                <KeyBinding
+                                    Key="F2"
+                                    Command="{x:Static controls:ProjectItemControl.EditCommand}"
+                                    CommandParameter="Enter" />
+                                <MouseBinding
+                                    Command="{Binding LoadContentCommand}"
+                                    CommandParameter="{Binding}"
+                                    MouseAction="LeftDoubleClick" />
+                                <KeyBinding
+                                    Key="Enter"
+                                    Command="{x:Static controls:ProjectItemControl.EditCommand}"
+                                    CommandParameter="Exit" />
+                                <KeyBinding
+                                    Key="Esc"
+                                    Command="{x:Static controls:ProjectItemControl.EditCommand}"
+                                    CommandParameter="Exit" />
+                            </controls:ProjectItemControl.InputBindings>
+
+                        </controls:ProjectItemControl>
+                    </DataTemplate>
+                </TreeView.ItemTemplate>
+            </TreeView>
+        </Grid>
+    </Grid>
+
+</UserControl>
